@@ -1,7 +1,7 @@
 // server/controllers/fileshareController.js
 const mongoose = require("mongoose");
 const multer = require("multer");
-const crypto = require("crypto");
+const crypto = require("node:crypto");
 const File = require("../models/File");
 
 let gfsBucket;
@@ -16,7 +16,7 @@ mongoose.connection.once("open", () => {
 
 // Multer memory storage
 const storage = multer.memoryStorage();
-const upload = multer({ storage });
+const upload = multer({ storage, limits: { fileSize: 5242880 } }); // 5MB limit
 
 // Generate unique share code
 function generateShareCode() {
@@ -98,7 +98,7 @@ exports.downloadFile = async (req, res) => {
     if (!gfsBucket)
       return res.status(500).json({ message: "Storage bucket not ready yet." });
 
-    const fileId = new mongoose.Types.ObjectId(id);
+    const fileId = mongoose.mongo.ObjectId.createFromHexString(id);
     const files = await mongoose.connection.db
       .collection("uploads.files")
       .find({ _id: fileId })

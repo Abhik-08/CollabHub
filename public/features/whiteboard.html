@@ -3,34 +3,159 @@
 <head>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <title>CollabHub | Whiteboard</title>    
-  <link rel="stylesheet" href="../assets/css/whiteboard.css">
+  <title>CollabHub | Creative Whiteboard Workspace</title>
+  
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet">
   <link rel="icon" type="image/png" href="../assets/images/favicon.png">
-  <script src="https://cdn.socket.io/4.7.5/socket.io.min.js"></script>
+  <link rel="stylesheet" href="../assets/css/whiteboard.css">
+  
+  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css" integrity="sha512-9usAa10IRO0HhonpyAIVpjrylPvoDwiPUiKdWk5t3PyolY1cOd4DSE0Ga+ri4AuTroPR5aQvXU9xC6qOPnzFeg==" crossorigin="anonymous" referrerpolicy="no-referrer" />
+  
+  <!-- PDF and SVG capture scripts -->
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/jspdf/2.5.1/jspdf.umd.min.js" integrity="sha512-qZvrmS2ekKPF2mSznTQsxqPgnpkI4DNTlrdUmTzrDgektczlKNRRhy5X5AAOnx5S09ydFYWWNSfcEqDTTHgtNA==" crossorigin="anonymous" referrerpolicy="no-referrer"></script>
 </head>
 <body>
-  <div class="toolbar">
-    <div class="toolbar-left">
-      <label>🎨 Color:</label>
-      <input type="color" id="colorPicker" value="#000000">
 
-      <label>🖋 Thickness:</label>
-      <input type="range" id="thickness" min="1" max="20" value="3">
-
-      <button id="eraseBtn">Eraser</button>
-      <button id="clearBtn">Clear</button>
-      <button id="downloadBtn">Download</button>
+  <!-- Floating top bar controls -->
+  <header class="whiteboard-header">
+    <div class="header-left">
+      <div class="brand">
+        <i class="fa-solid fa-compass-drafting"></i> CollabBoard
+      </div>
+      <div class="file-ops">
+        <button id="importBtn" class="hdr-btn" title="Import whiteboard JSON"><i class="fa-solid fa-file-import"></i> Import</button>
+        <input type="file" id="importInput" accept=".json" style="display: none;" aria-label="Import JSON File">
+        
+        <div class="dropdown">
+          <button class="hdr-btn dropdown-toggle" aria-haspopup="true" aria-expanded="false"><i class="fa-solid fa-file-export"></i> Export</button>
+          <div class="dropdown-content">
+            <button id="exportPngBtn" class="dropdown-item"><i class="fa-solid fa-image"></i> Export PNG</button>
+            <button id="exportSvgBtn" class="dropdown-item"><i class="fa-solid fa-code"></i> Export SVG</button>
+            <button id="exportPdfBtn" class="dropdown-item"><i class="fa-solid fa-file-pdf"></i> Export PDF</button>
+            <button id="exportJsonBtn" class="dropdown-item"><i class="fa-solid fa-file-code"></i> Export JSON</button>
+          </div>
+        </div>
+        
+        <button id="loadDraftBtn" class="hdr-btn" title="Load draft board"><i class="fa-solid fa-rotate-left"></i> Load Draft</button>
+        <button id="saveDraftBtn" class="hdr-btn highlight-save" title="Save draft board"><i class="fa-solid fa-save"></i> Save</button>
+      </div>
     </div>
 
-    <div class="toolbar-right">
-      <input type="text" id="boardId" placeholder="Enter or share code">
-      <button id="shareBtn">Share</button>
-      <button id="joinBtn">Join</button>
+    <div class="header-right">
+      <div class="room-controls">
+        <input type="text" id="boardId" placeholder="Room ID..." aria-label="Whiteboard Room ID">
+        <button id="shareBtn" class="btn-room">Share</button>
+        <button id="joinBtn" class="btn-room btn-primary-room">Join</button>
+      </div>
     </div>
-  </div>
+  </header>
 
-  <canvas id="whiteboard"></canvas>
+  <!-- Left Sidebar for Stroke/Fill formatting properties -->
+  <aside class="properties-bar" id="propertiesBar">
+    <div class="prop-section">
+      <div class="section-title">Brush & Stroke</div>
+      
+      <div class="prop-row">
+        <label for="colorPicker">Stroke</label>
+        <input type="color" id="colorPicker" value="#000000">
+      </div>
+      
+      <div class="prop-row">
+        <label for="thickness">Width</label>
+        <input type="range" id="thickness" min="1" max="30" value="4">
+      </div>
+      
+      <div class="prop-row">
+        <label for="strokeDash">Style</label>
+        <select id="strokeDash">
+          <option value="solid">Solid</option>
+          <option value="dashed">Dashed</option>
+        </select>
+      </div>
+    </div>
 
+    <div class="prop-section">
+      <div class="section-title">Fill & Background</div>
+      
+      <div class="prop-row">
+        <label for="fillColorPicker">Fill</label>
+        <input type="color" id="fillColorPicker" value="#ffffff">
+      </div>
+      
+      <div class="prop-row">
+        <label for="fillOpacity">Opacity</label>
+        <input type="range" id="fillOpacity" min="0" max="100" value="100">
+      </div>
+
+      <div class="prop-row">
+        <label for="shapeCorners">Corners</label>
+        <select id="shapeCorners">
+          <option value="rounded">Rounded</option>
+          <option value="sharp">Sharp</option>
+        </select>
+      </div>
+    </div>
+
+    <div class="prop-section">
+      <div class="section-title">Object layers</div>
+      <div class="layer-buttons">
+        <button id="bringForwardBtn" class="layer-btn" title="Bring Forward"><i class="fa-solid fa-angle-up"></i> Up</button>
+        <button id="sendBackwardBtn" class="layer-btn" title="Send Backward"><i class="fa-solid fa-angle-down"></i> Down</button>
+        <button id="lockBtn" class="layer-btn" title="Lock object"><i class="fa-solid fa-lock"></i> Lock</button>
+      </div>
+    </div>
+  </aside>
+
+  <!-- Top-Center Floating Toolbar Mode Selector -->
+  <nav class="mode-toolbar">
+    <button id="tool-select" class="mode-btn active" title="Select / Transform tool (V)"><i class="fa-solid fa-arrow-pointer"></i></button>
+    <button id="tool-pencil" class="mode-btn" title="Pencil / Draw (P)"><i class="fa-solid fa-pencil"></i></button>
+    <button id="tool-brush" class="mode-btn" title="Brush marker (B)"><i class="fa-solid fa-paint-brush"></i></button>
+    <button id="tool-highlighter" class="mode-btn" title="Highlighter (H)"><i class="fa-solid fa-highlighter"></i></button>
+    <button id="tool-line" class="mode-btn" title="Line (L)"><i class="fa-solid fa-minus"></i></button>
+    <button id="tool-arrow" class="mode-btn" title="Arrow (A)"><i class="fa-solid fa-arrow-right"></i></button>
+    <button id="tool-rect" class="mode-btn" title="Rectangle (R)"><i class="fa-regular fa-square"></i></button>
+    <button id="tool-circle" class="mode-btn" title="Circle (O)"><i class="fa-regular fa-circle"></i></button>
+    <button id="tool-triangle" class="mode-btn" title="Triangle (T)"><i class="fa-solid fa-play fa-rotate-270"></i></button>
+    <button id="tool-diamond" class="mode-btn" title="Diamond (D)"><i class="fa-regular fa-square fa-rotate-45"></i></button>
+    <button id="tool-text" class="mode-btn" title="Text (X)"><i class="fa-solid fa-font"></i></button>
+    <button id="tool-sticky" class="mode-btn" title="Sticky Note (S)"><i class="fa-solid fa-note-sticky"></i></button>
+    <button id="tool-erase" class="mode-btn text-red" title="Eraser tool (E)"><i class="fa-solid fa-eraser"></i></button>
+  </nav>
+
+  <!-- Bottom-Left Zoom Overlay & Background theme settings -->
+  <footer class="bottom-controls">
+    <div class="zoom-panel">
+      <button id="zoomOutBtn" class="zoom-btn" title="Zoom Out"><i class="fa-solid fa-minus"></i></button>
+      <span id="zoomVal">100%</span>
+      <button id="zoomInBtn" class="zoom-btn" title="Zoom In"><i class="fa-solid fa-plus"></i></button>
+      <button id="zoomResetBtn" class="zoom-btn" title="Reset Zoom">Reset</button>
+    </div>
+    
+    <div class="bg-selector">
+      <button id="bgGridBtn" class="hdr-btn active" title="Dotted Grid background"><i class="fa-solid fa-border-none"></i> Grid</button>
+      <button id="bgPlainBtn" class="hdr-btn" title="Plain White background"><i class="fa-solid fa-square-full"></i> Plain</button>
+    </div>
+  </footer>
+
+  <!-- Bottom-Right Undo/Redo/Delete panel -->
+  <footer class="history-controls">
+    <button id="undoBtn" class="hist-btn" title="Undo (Ctrl+Z)"><i class="fa-solid fa-rotate-left"></i></button>
+    <button id="redoBtn" class="hist-btn" title="Redo (Ctrl+Y)"><i class="fa-solid fa-rotate-right"></i></button>
+    <button id="duplicateBtn" class="hist-btn" title="Duplicate selection (Ctrl+D)"><i class="fa-solid fa-clone"></i></button>
+    <button id="deleteBtn" class="hist-btn text-red" title="Delete selected"><i class="fa-solid fa-trash"></i></button>
+    <button id="clearBtn" class="hist-btn clear-board-btn" title="Clear board"><i class="fa-solid fa-broom"></i></button>
+  </footer>
+
+  <!-- Main Canvas Sheet -->
+  <main class="canvas-container">
+    <canvas id="whiteboard"></canvas>
+    <textarea id="canvas-text-editor" aria-label="Canvas Text Editor"></textarea>
+  </main>
+
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/socket.io/4.7.5/socket.io.min.js" integrity="sha384-2huaZvOR9iDzHqslqwpR87isEmrfxqyWOF7hr7BY6KG0+hVKLoEXMPUJw3ynWuhO" crossorigin="anonymous"></script>
   <script src="../assets/js/whiteboard.js"></script>
 </body>
 </html>

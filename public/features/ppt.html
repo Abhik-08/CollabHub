@@ -1,1 +1,238 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>CollabHub | Advanced Presentation Workspace</title>
+  <link rel="icon" type="image/png" href="../assets/images/favicon.png">
+  <link rel="stylesheet" href="../assets/css/ppt.css">
+  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.0/css/all.min.css" integrity="sha512-Avb2QiuDEEvB4bZJYdft2mNjVShBftLdPG8FJ0V7irTLQ8Uo0qcPxh4Plq7G5tGm0rU+1SPhVotteLpBERwTkw==" crossorigin="anonymous" referrerpolicy="no-referrer" />
+  
+  <!-- CDN dependencies for rich exports and functionality -->
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/socket.io/4.7.5/socket.io.min.js" integrity="sha384-2huaZvOR9iDzHqslqwpR87isEmrfxqyWOF7hr7BY6KG0+hVKLoEXMPUJw3ynWuhO" crossorigin="anonymous"></script>
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/html2canvas/1.4.1/html2canvas.min.js" integrity="sha512-BNaRQnYJYiPSqHHDb58B0yaPfYLtYcgzATCcSpfVWyHP17q96e0jDKMdaOMn2XCpdPhvR3VbRdHsFGL13M43hQ==" crossorigin="anonymous" referrerpolicy="no-referrer"></script>
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/jspdf/2.5.1/jspdf.umd.min.js" integrity="sha512-qZvrmS2ekKPF2mSznTQsxqPgnpkI4DNTlrdUmTzrDgektczlKNRRhy5X5AAOnx5S09ydFYWWNSfcEqDTTHgtNA==" crossorigin="anonymous" referrerpolicy="no-referrer"></script>
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/jszip/3.10.1/jszip.min.js" integrity="sha384-+mbV2IY1Zk/X1p/nWllGySJSUN8uMs+gUAN10Or95UBH0fpj6GfKgPmgC5EXieXG" crossorigin="anonymous"></script>
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/fabric.js/5.3.0/fabric.min.js" integrity="sha512-P6uimDKoj1nnPSo2sPmgbZy99pPq9nHXhLwddOnLi1DC+fEM83FEUcHPRPifbx1rlRkdMinViaWyDfG45G9BuA==" crossorigin="anonymous" referrerpolicy="no-referrer"></script>
+  <script src="https://cdn.jsdelivr.net/gh/gitbrent/pptxgenjs@3.12.0/dist/pptxgen.bundle.js" integrity="sha384-Cck14aA9cifjYolcnjebXRfWGkz5ltHMBiG4px/j8GS+xQcb7OhNQWZYyWjQ+UwQ" crossorigin="anonymous"></script>
+</head>
+<body>
+  <div class="app-container">
+    <header class="app-header">
+      <div class="brand">
+        <i class="fa-solid fa-person-chalkboard"></i> CollabSlides
+      </div>
+      
+      <div class="header-menu">
+        <button id="importJsonBtn" class="btn-secondary" title="Import JSON slide project"><i class="fa-solid fa-file-import"></i> Import Project</button>
+        <input type="file" id="importJsonInput" accept=".json" style="display: none;" aria-label="Import Project JSON">
+        
+        <div class="dropdown">
+          <button class="btn-secondary dropdown-toggle" aria-haspopup="true" aria-expanded="false"><i class="fa-solid fa-file-export"></i> Export</button>
+          <div class="dropdown-content">
+            <button id="exportPngBtn" class="dropdown-item"><i class="fa-solid fa-file-image"></i> Export Slide (PNG)</button>
+            <button id="exportZipBtn" class="dropdown-item"><i class="fa-solid fa-file-zipper"></i> Export ZIP (All Slides)</button>
+            <button id="exportPdfBtn" class="dropdown-item"><i class="fa-solid fa-file-pdf"></i> Export PDF</button>
+            <button id="exportPptxBtn" class="dropdown-item"><i class="fa-solid fa-file-powerpoint"></i> Export PPTX</button>
+            <button id="printBtn" class="dropdown-item"><i class="fa-solid fa-print"></i> Print slides</button>
+          </div>
+        </div>
+        
+        <button id="loadBtn" class="btn-secondary" title="Load autorecovered draft"><i class="fa-solid fa-rotate-left"></i> Load Draft</button>
+        <button id="saveBtn" class="btn-primary" title="Save slides"><i class="fa-solid fa-save"></i> Save</button>
+        <button id="presentModeBtn" class="btn-success" title="Present Mode"><i class="fa-solid fa-play"></i> Present</button>
+      </div>
 
+      <div class="room-controls">
+        <input type="text" id="roomIdInput" placeholder="Enter Room ID" aria-label="Room ID">
+        <button id="joinRoomBtn" class="btn-primary">Join Room</button>
+        <button id="createRoomBtn" class="btn-secondary">Share / Create</button>
+      </div>
+    </header>
+
+    <!-- Top Formatting & Canvas Tool ribbon -->
+    <div class="ribbon-toolbar">
+      <!-- Group 1: Add Elements -->
+      <div class="toolbar-group">
+        <span class="group-label">Add Objects</span>
+        <div class="btn-row">
+          <button id="addHeadingBtn" class="btn-tool" title="Add Title"><i class="fa-solid fa-heading"></i></button>
+          <button id="addTextBoxBtn" class="btn-tool" title="Add Paragraph"><i class="fa-solid fa-font"></i></button>
+          <button id="addImageBtn" class="btn-tool" title="Upload Slide Image"><i class="fa-solid fa-image"></i></button>
+          <input type="file" id="imageUploadInput" accept="image/*" style="display: none;" aria-label="Upload Image File">
+          
+          <div class="dropdown inline-dropdown">
+            <button class="btn-tool dropdown-toggle" title="Add Canvas Shapes" aria-haspopup="true" aria-expanded="false"><i class="fa-solid fa-shapes"></i></button>
+            <div class="dropdown-content">
+              <button id="addRectShapeBtn" class="dropdown-item"><i class="fa-regular fa-square"></i> Rectangle</button>
+              <button id="addCircleShapeBtn" class="dropdown-item"><i class="fa-regular fa-circle"></i> Circle</button>
+              <button id="addTriangleShapeBtn" class="dropdown-item"><i class="fa-solid fa-caret-up"></i> Triangle</button>
+              <button id="addArrowShapeBtn" class="dropdown-item"><i class="fa-solid fa-arrow-right"></i> Arrow</button>
+            </div>
+          </div>
+          
+          <button id="addTableBtn" class="btn-tool" title="Insert 3x3 Table"><i class="fa-solid fa-table"></i></button>
+          <button id="addCodeBlockBtn" class="btn-tool" title="Insert Code Editor Panel"><i class="fa-solid fa-code"></i></button>
+          <button id="addChartPlaceholderBtn" class="btn-tool" title="Insert Chart Placeholder"><i class="fa-solid fa-chart-pie"></i></button>
+          
+          <div class="dropdown inline-dropdown">
+            <button class="btn-tool dropdown-toggle" title="Insert Sticker" aria-haspopup="true" aria-expanded="false"><i class="fa-regular fa-face-smile"></i></button>
+            <div class="dropdown-content sticker-grid">
+              <button class="sticker-btn">😀</button>
+              <button class="sticker-btn">🔥</button>
+              <button class="sticker-btn">🚀</button>
+              <button class="sticker-btn">💡</button>
+              <button class="sticker-btn">🎉</button>
+              <button class="sticker-btn">⭐</button>
+              <button class="sticker-btn">✨</button>
+              <button class="sticker-btn">✅</button>
+            </div>
+          </div>
+        </div>
+      </div>
+      
+      <div class="separator-v"></div>
+      
+      <!-- Group 2: Formatting -->
+      <div class="toolbar-group disabled-group" id="formattingGroup">
+        <span class="group-label">Format Object</span>
+        <div class="btn-row">
+          <select id="fontFamilySelect" class="select-tool" aria-label="Font Family">
+            <option value="Inter">Inter</option>
+            <option value="Arial">Arial</option>
+            <option value="Georgia">Georgia</option>
+            <option value="Times New Roman">Times New Roman</option>
+            <option value="Courier New">Courier New</option>
+          </select>
+          
+          <input type="number" id="fontSizeInput" class="input-tool" min="8" max="120" value="16" aria-label="Font Size" title="Font Size">
+          
+          <button id="boldToggleBtn" class="btn-tool" title="Toggle Bold"><i class="fa-solid fa-bold"></i></button>
+          <button id="italicToggleBtn" class="btn-tool" title="Toggle Italic"><i class="fa-solid fa-italic"></i></button>
+          <button id="underlineToggleBtn" class="btn-tool" title="Toggle Underline"><i class="fa-solid fa-underline"></i></button>
+          
+          <button id="alignLeftBtn" class="btn-tool" title="Left Align"><i class="fa-solid fa-align-left"></i></button>
+          <button id="alignCenterBtn" class="btn-tool" title="Center Align"><i class="fa-solid fa-align-center"></i></button>
+          <button id="alignRightBtn" class="btn-tool" title="Right Align"><i class="fa-solid fa-align-right"></i></button>
+          
+          <button id="bulletListBtn" class="btn-tool" title="Bullet Points"><i class="fa-solid fa-list-ul"></i></button>
+          <button id="numberListBtn" class="btn-tool" title="Numbered List"><i class="fa-solid fa-list-ol"></i></button>
+          
+          <div class="color-picker-wrapper">
+            <label for="textColorPicker" class="color-label"><i class="fa-solid fa-font" aria-hidden="true"></i><span class="sr-only">Text Color</span></label>
+            <input type="color" id="textColorPicker" value="#333333" title="Text Color">
+          </div>
+          
+          <div class="color-picker-wrapper">
+            <label for="bgElementColorPicker" class="color-label"><i class="fa-solid fa-fill-drip" aria-hidden="true"></i><span class="sr-only">Element Background</span></label>
+            <input type="color" id="bgElementColorPicker" value="#ffffff" title="Element Fill Color">
+          </div>
+        </div>
+      </div>
+      
+      <div class="separator-v"></div>
+ 
+      <!-- Group 3: Slide & Canvas Controls -->
+      <div class="toolbar-group">
+        <span class="group-label">Canvas & Theme</span>
+        <div class="btn-row">
+          <div class="color-picker-wrapper">
+            <label for="slideBgColorPicker" class="color-label"><i class="fa-solid fa-palette" aria-hidden="true"></i> Slide Background</label>
+            <input type="color" id="slideBgColorPicker" value="#ffffff" title="Slide Background Color">
+          </div>
+          <div class="separator-mini"></div>
+          <button id="zoomOutBtn" class="btn-tool" title="Zoom Out"><i class="fa-solid fa-minus"></i></button>
+          <span id="zoomLevelDisplay">100%</span>
+          <button id="zoomInBtn" class="btn-tool" title="Zoom In"><i class="fa-solid fa-plus"></i></button>
+          <button id="zoomResetBtn" class="btn-tool" title="Reset Zoom">1:1</button>
+          <div class="separator-mini"></div>
+          <button id="toggleGridBtn" class="btn-tool" title="Toggle Grid Layout"><i class="fa-solid fa-border-all"></i></button>
+          <button id="toggleGuidesBtn" class="btn-tool" title="Toggle Snapping Guides"><i class="fa-solid fa-grip-lines"></i></button>
+          <button id="toggleDarkModeBtn" class="btn-tool" title="Dark / Light Theme Toggle"><i class="fa-solid fa-moon"></i></button>
+        </div>
+      </div>
+ 
+      <div class="separator-v"></div>
+      
+      <!-- Group 4: Object Controls -->
+      <div class="toolbar-group disabled-group" id="objectGroup">
+        <span class="group-label">Arrange Objects</span>
+        <div class="btn-row">
+          <button id="layerUpBtn" class="btn-tool" title="Bring to Front"><i class="fa-solid fa-layer-group"></i><i class="fa-solid fa-arrow-up-long"></i></button>
+          <button id="layerDownBtn" class="btn-tool" title="Send to Back"><i class="fa-solid fa-layer-group"></i><i class="fa-solid fa-arrow-down-long"></i></button>
+          <button id="lockObjBtn" class="btn-tool" title="Lock Selection"><i class="fa-solid fa-lock"></i></button>
+          <button id="unlockObjBtn" class="btn-tool" title="Unlock Selection"><i class="fa-solid fa-unlock"></i></button>
+          <button id="duplicateObjBtn" class="btn-tool" title="Duplicate Selection"><i class="fa-solid fa-clone"></i></button>
+          <button id="deleteObjBtn" class="btn-tool text-red" title="Delete Selection"><i class="fa-solid fa-trash"></i></button>
+        </div>
+      </div>
+    </div>
+ 
+    <!-- Main editor body -->
+    <div class="workspace">
+      <!-- Left sidebar: thumbnails navigation list -->
+      <aside class="sidebar">
+        <div class="sidebar-header">
+          <h3>Slides</h3>
+          <div class="sidebar-actions">
+            <button id="addSlideBtn" class="btn-icon" title="Add Slide"><i class="fa-solid fa-plus"></i></button>
+            <button id="duplicateSlideBtn" class="btn-icon" title="Duplicate Current Slide"><i class="fa-solid fa-copy"></i></button>
+            <button id="deleteSlideBtn" class="btn-icon text-red" title="Delete Slide"><i class="fa-solid fa-trash"></i></button>
+          </div>
+        </div>
+        <div id="slideList" class="slide-list">
+          <!-- Dynamically generated slides thumbnails with drag-and-drop support -->
+        </div>
+      </aside>
+ 
+      <!-- Center workspace container -->
+      <main class="main-content">
+        <div class="canvas-ruler-wrapper">
+          <!-- Slide Canvas Viewport with Grid/Guides -->
+          <div class="canvas-viewport" id="canvasViewport">
+            <div class="slide-canvas" id="slideCanvas" style="width: 960px; height: 540px; transform: scale(1);">
+              <canvas id="fabricCanvas" width="960" height="540"></canvas>
+            </div>
+          </div>
+        </div>
+
+        <!-- Notes section -->
+        <section class="notes-section glass-card">
+          <h3><i class="fa-solid fa-clipboard"></i> Slide Presenter Notes</h3>
+          <textarea id="notesInput" placeholder="Enter notes or talking points here..." aria-label="Slide Presenter Notes"></textarea>
+        </section>
+
+        <!-- Status Bar -->
+        <div class="status-bar" id="statusBar">
+          <span id="slideCounter">Slide 1 of 1</span>
+          <span class="status-separator">|</span>
+          <span id="statusZoom">Zoom: 100%</span>
+        </div>
+      </main>
+    </div>
+  </div>
+
+  <!-- Slide Context Menu -->
+  <div id="slideContextMenu" class="slide-context-menu hidden">
+    <button class="ctx-item" data-action="rename"><i class="fa-solid fa-pen"></i> Rename</button>
+    <button class="ctx-item" data-action="duplicate"><i class="fa-solid fa-clone"></i> Duplicate</button>
+    <button class="ctx-item" data-action="moveUp"><i class="fa-solid fa-arrow-up"></i> Move Up</button>
+    <button class="ctx-item" data-action="moveDown"><i class="fa-solid fa-arrow-down"></i> Move Down</button>
+    <div class="ctx-divider"></div>
+    <button class="ctx-item ctx-danger" data-action="delete"><i class="fa-solid fa-trash"></i> Delete</button>
+  </div>
+
+  <!-- Custom Fullscreen Presentation Player -->
+  <div id="presentPlayer" class="present-player hidden">
+    <div class="present-slide-container" id="presentSlideContainer"></div>
+    <div class="present-controls">
+      <button id="presentPrevBtn" class="btn-present-nav"><i class="fa-solid fa-chevron-left"></i></button>
+      <span id="presentCounter">1 / 1</span>
+      <button id="presentNextBtn" class="btn-present-nav"><i class="fa-solid fa-chevron-right"></i></button>
+      <button id="presentExitBtn" class="btn-present-exit"><i class="fa-solid fa-xmark"></i> Close</button>
+    </div>
+  </div>
+
+  <script src="../assets/js/ppt.js"></script>
+</body>
+</html>

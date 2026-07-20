@@ -1,23 +1,23 @@
-/* public/flowchart.css (V4 - High-Tech Lab Theme) */
+/* public/flowchart.css (V5 - High-Tech Professional Diagram Theme) */
 @import url('https://fonts.googleapis.com/css2?family=Rajdhani:wght@400;600;700&family=Inter:wght@300;400;600&display=swap');
 
 :root {
-    /* --- DARK UI VARIABLES (Sidebar/Header) --- */
+    /* --- DARK UI VARIABLES --- */
     --font-ui: 'Inter', sans-serif;
     --font-tech: 'Rajdhani', sans-serif;
     
     --neon-cyan: #00f3ff;
     --neon-blue: #0066ff;
-    --bg-void: #0b0d12;      /* Dark background for UI */
+    --bg-void: #0b0d12;
     --bg-panel: rgba(15, 20, 30, 0.95);
     
     --border-glass: rgba(0, 243, 255, 0.2);
     --text-primary: #e0e6ed;
     --text-muted: #8b9bb4;
 
-    /* --- LIGHT METALLIC VARIABLES (Workspace) --- */
-    --metal-bg: #eef2f6;     /* Light silver background */
-    --metal-grid: rgba(0, 50, 100, 0.08); /* Crisp subtle grid */
+    /* --- LIGHT METALLIC VARIABLES --- */
+    --metal-bg: #eef2f6;
+    --metal-grid: rgba(0, 50, 100, 0.08);
     --metal-surface: #ffffff;
     --metal-border: #cfd8dc;
     --metal-shadow: 0 10px 30px rgba(0,0,0,0.1);
@@ -38,7 +38,7 @@ body {
 }
 
 /* =========================================
-   1. HEADER (Holographic Dark)
+   1. HEADER & RIBBON TOOLBAR
    ========================================= */
 .app-header {
     height: 50px;
@@ -63,11 +63,26 @@ body {
     text-shadow: 0 0 10px rgba(0, 243, 255, 0.4);
     display: flex; align-items: center; gap: 10px;
 }
+
+.header-menu {
+    display: flex;
+    gap: 8px;
+    align-items: center;
+}
+
 .room-controls { display: flex; gap: 10px; }
 
-/* =========================================
-   2. RIBBON (Tech Control Panel)
-   ========================================= */
+.room-controls input {
+    background: rgba(0,0,0,0.5);
+    border: 1px solid var(--border-glass);
+    color: var(--neon-cyan);
+    padding: 6px 12px;
+    border-radius: 4px;
+    outline: none;
+    text-align: center;
+    font-weight: 600;
+}
+
 .ribbon {
     height: 55px;
     background: var(--bg-panel);
@@ -78,9 +93,9 @@ body {
     gap: 15px;
     z-index: 15;
     position: relative;
+    overflow-x: auto;
 }
 
-/* Animated scanline under ribbon */
 .ribbon::after {
     content: "";
     position: absolute;
@@ -96,6 +111,15 @@ body {
 
 .tool-group { display: flex; gap: 8px; align-items: center; }
 .separator { width: 1px; height: 24px; background: var(--border-glass); opacity: 0.5; }
+.separator-mini { width: 1px; height: 16px; background: var(--border-glass); opacity: 0.3; }
+
+.group-label {
+    font-size: 0.7rem;
+    text-transform: uppercase;
+    color: var(--text-muted);
+    letter-spacing: 0.5px;
+    font-weight: 600;
+}
 
 .tool-btn {
     background: rgba(255,255,255,0.03);
@@ -106,13 +130,18 @@ body {
     font-size: 13px;
     color: var(--text-muted);
     transition: 0.2s;
+    display: inline-flex;
+    align-items: center;
+    gap: 6px;
 }
+
 .tool-btn:hover {
     background: rgba(0, 243, 255, 0.1);
     color: var(--neon-cyan);
     border-color: var(--neon-cyan);
     box-shadow: 0 0 10px rgba(0, 243, 255, 0.2);
 }
+
 .tool-btn.active {
     background: var(--neon-cyan);
     color: #000;
@@ -120,17 +149,81 @@ body {
     box-shadow: 0 0 15px var(--neon-cyan);
 }
 
-/* Inputs in dark mode */
+/* Ribbon Dropdown Styling */
+.dropdown {
+    position: relative;
+    display: inline-block;
+}
+
+.dropdown-content {
+    display: none;
+    position: absolute;
+    background: var(--bg-panel);
+    min-width: 160px;
+    box-shadow: 0 8px 16px rgba(0,0,0,0.5);
+    border-radius: 6px;
+    z-index: 50;
+    border: 1px solid var(--border-glass);
+    top: 100%;
+    left: 0;
+}
+
+.dropdown:hover .dropdown-content {
+    display: block;
+}
+
+.dropdown-item {
+    background: none;
+    border: none;
+    color: var(--text-primary);
+    padding: 10px 16px;
+    width: 100%;
+    text-align: left;
+    cursor: pointer;
+    display: flex;
+    align-items: center;
+    gap: 10px;
+    font-weight: 500;
+    transition: background 0.2s;
+}
+
+.dropdown-item:hover {
+    background: rgba(0, 243, 255, 0.1);
+    color: var(--neon-cyan);
+}
+
+/* Inputs & Form Controls */
+.prop-item {
+    display: flex;
+    align-items: center;
+    gap: 6px;
+    font-size: 12px;
+}
+
+.prop-item label {
+    font-weight: 600;
+    color: var(--text-muted);
+}
+
 .prop-item input, .prop-item select {
     background: rgba(0,0,0,0.5);
     border: 1px solid var(--border-glass);
     color: var(--neon-cyan);
     padding: 4px 8px;
     border-radius: 4px;
+    outline: none;
+}
+
+.prop-item input[type="color"] {
+    width: 24px;
+    height: 24px;
+    padding: 0;
+    border: 1px solid var(--border-glass);
+    cursor: pointer;
 }
 
 /* =========================================
-   3. WORKSPACE LAYOUT
+   2. WORKSPACE PANELS
    ========================================= */
 .workspace {
     display: flex;
@@ -138,9 +231,7 @@ body {
     overflow: hidden;
 }
 
-/* =========================================
-   4. SIDEBAR (Component Tray - Dark)
-   ========================================= */
+/* Sidebar 컴포넌트 */
 .sidebar {
     width: 220px;
     background: var(--bg-panel);
@@ -151,21 +242,27 @@ body {
     gap: 10px;
     z-index: 10;
     box-shadow: 5px 0 20px rgba(0,0,0,0.3);
+    overflow-y: auto;
 }
 
 .sidebar-title { 
     font-family: var(--font-tech);
-    font-size: 13px; 
+    font-size: 11px; 
     font-weight: 600; 
     color: var(--neon-cyan); 
     text-transform: uppercase;
     letter-spacing: 1px;
     border-bottom: 1px solid rgba(255,255,255,0.1);
     padding-bottom: 5px;
+    margin-top: 15px;
+}
+
+.sidebar-title:first-child {
+    margin-top: 0;
 }
 
 .shape-item {
-    padding: 10px;
+    padding: 8px 10px;
     background: rgba(255,255,255,0.03);
     border: 1px solid transparent;
     border-radius: 6px;
@@ -173,105 +270,97 @@ body {
     display: flex; align-items: center; gap: 12px;
     transition: 0.2s;
 }
+
 .shape-item:hover {
     background: rgba(0, 243, 255, 0.05);
     border-color: var(--neon-cyan);
     transform: translateX(5px);
 }
+
 .icon-box { 
     border: 2px solid var(--text-muted); 
     width: 24px; height: 18px; 
 }
+
 .shape-item:hover .icon-box { border-color: var(--neon-cyan); }
 
+/* SVG shapes preview box */
+.database-icon {
+    border: 2px solid var(--text-muted);
+    border-radius: 4px 4px 4px 4px;
+    position: relative;
+}
+.database-icon::before {
+    content: "";
+    position: absolute;
+    top: 4px; left: 0; width: 100%; height: 2px;
+    border-bottom: 1.5px solid var(--text-muted);
+}
+.database-icon::after {
+    content: "";
+    position: absolute;
+    top: 9px; left: 0; width: 100%; height: 2px;
+    border-bottom: 1.5px solid var(--text-muted);
+}
+
+.cloud-icon {
+    border: 2px dashed var(--text-muted);
+    border-radius: 8px;
+}
+
+.user-icon {
+    border: 2px solid var(--text-muted);
+    border-radius: 50% 50% 0 0;
+}
+
+.server-icon {
+    border: 2px solid var(--text-muted);
+    background-image: repeating-linear-gradient(0deg, var(--text-muted), var(--text-muted) 2px, transparent 2px, transparent 6px);
+}
+
+.document-icon {
+    border: 2px solid var(--text-muted);
+    clip-path: polygon(0 0, 75% 0, 100% 25%, 100% 100%, 0 100%);
+}
+
 /* =========================================
-   5. CANVAS (Metallic Light Theme - High Visibility)
+   3. THE CANVAS SHEET & INFINITE LAYOUT
    ========================================= */
 .canvas-wrapper {
     position: relative;
     flex: 1;
-    
-    /* Metallic Silver Background */
     background-color: var(--metal-bg);
-    
-    /* Precision Grid */
-    background-image: 
-        linear-gradient(var(--metal-grid) 1px, transparent 1px),
-        linear-gradient(90deg, var(--metal-grid) 1px, transparent 1px);
-    background-size: 40px 40px;
-    
-    /* Animation: Slow Pan */
-    animation: panGrid 60s linear infinite;
-    
+    overflow: auto;
     display: flex;
-    padding: 50px;
-    overflow: hidden; /* Important for scanline */
+    justify-content: center;
+    align-items: center;
 }
 
-@keyframes panGrid {
-    0% { background-position: 0 0; }
-    100% { background-position: -40px -40px; }
-}
-
-/* DYNAMIC: Laser Scanner Effect */
-.canvas-wrapper::after {
-    content: "";
-    position: absolute;
-    top: 0; left: 0; 
-    width: 100%; height: 5px; /* Thin beam */
-    
-    /* Blue Laser Beam */
-    background: linear-gradient(90deg, 
-        transparent 0%, 
-        rgba(0, 100, 255, 0.0) 20%,
-        rgba(0, 100, 255, 0.5) 50%, 
-        rgba(0, 100, 255, 0.0) 80%,
-        transparent 100%
-    );
-    box-shadow: 0 0 15px rgba(0, 100, 255, 0.3);
-    
-    animation: laserScan 6s ease-in-out infinite;
-    pointer-events: none;
-    z-index: 1;
-}
-
-@keyframes laserScan {
-    0% { top: -10%; opacity: 0; }
-    10% { opacity: 1; }
-    90% { opacity: 1; }
-    100% { top: 110%; opacity: 0; }
-}
-
-/* The Paper/Canvas Sheet */
+/* Default dotted grid drawn dynamically in JS */
 #flowchart-canvas {
     background: var(--metal-surface);
-    /* Subtle Metallic Sheen Gradient */
     background-image: linear-gradient(135deg, #ffffff 0%, #f4f7f9 100%);
-    
     border: 1px solid var(--metal-border);
-    box-shadow: 
-        0 10px 40px rgba(0,0,0,0.15), /* Drop shadow */
-        0 0 0 1px white inset;        /* Highlight edge */
-        
-    transition: box-shadow 0.3s;
+    box-shadow: var(--metal-shadow);
+    transition: border-color 0.2s, box-shadow 0.2s;
     z-index: 2;
+    transform-origin: center center;
+    cursor: default;
 }
 
-/* Hover effect on the canvas sheet itself */
-#flowchart-canvas:hover {
-    box-shadow: 
-        0 15px 50px rgba(0, 100, 255, 0.1),
-        0 0 0 1px var(--neon-cyan) inset; /* Tech border glow on hover */
-    border-color: var(--neon-cyan);
+#flowchart-canvas.panning {
+    cursor: grab;
+}
+
+#flowchart-canvas.panning:active {
+    cursor: grabbing;
 }
 
 .canvas-wrapper[data-cursor] {
     cursor: var(--cursor, "default");
 }
 
-/* =========================================
-   6. TEXT EDITOR
-   ========================================= */
+/* Text editor overlay */
 #node-text-editor {
     display: none;
     position: absolute;
@@ -288,7 +377,19 @@ body {
     outline: none;
 }
 
-/* Buttons */
+/* Visually Hidden class for screen reader text labels */
+.sr-only {
+    position: absolute;
+    width: 1px;
+    height: 1px;
+    padding: 0;
+    margin: -1px;
+    overflow: hidden;
+    clip: rect(0, 0, 0, 0);
+    border: 0;
+}
+
+/* Buttons utility */
 .btn-secondary {
     padding: 6px 15px;
     background: transparent;
@@ -301,9 +402,39 @@ body {
     font-weight: 600;
     letter-spacing: 1px;
     transition: 0.3s;
+    display: inline-flex;
+    align-items: center;
+    gap: 6px;
 }
+
 .btn-secondary:hover {
     background: var(--neon-cyan);
     color: #000;
     box-shadow: 0 0 15px var(--neon-cyan);
+}
+
+.btn-primary {
+    padding: 6px 15px;
+    background: var(--neon-cyan);
+    color: #000;
+    border: 1px solid var(--neon-cyan);
+    border-radius: 4px;
+    cursor: pointer;
+    font-family: var(--font-tech);
+    text-transform: uppercase;
+    font-weight: 600;
+    letter-spacing: 1px;
+    transition: 0.3s;
+}
+
+.btn-primary:hover {
+    box-shadow: 0 0 15px var(--neon-cyan);
+}
+
+.text-red {
+    color: #ff3366 !important;
+}
+.text-red:hover {
+    border-color: #ff3366 !important;
+    box-shadow: 0 0 10px rgba(255, 51, 102, 0.3) !important;
 }

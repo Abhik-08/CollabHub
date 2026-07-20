@@ -2,8 +2,8 @@
 const express = require("express");
 const cors = require("cors");
 const bodyParser = require("body-parser");
-const path = require("path");
-const http = require("http");
+const path = require("node:path");
+const http = require("node:http");
 const { Server } = require("socket.io");
 const cron = require("node-cron");
 require("dotenv").config();
@@ -12,6 +12,7 @@ require("dotenv").config();
 const connectDB = require("../database/db");
 const File = require("./models/File");
 const fileRoutes = require("./routes/fileshareRoutes");
+const codeshareRoutes = require("./routes/codeshareRoutes");
 // Use the new export object from chatRoutes
 const { router: chatRouter, setSocket } = require("./routes/chatRoutes");
 const handleGroupChat = require("./routes/groupChatHandler");
@@ -26,6 +27,8 @@ const allowedOrigins = [
   "http://localhost:5000",
   "http://127.0.0.1:5500",
   "http://localhost:5500",
+  "http://127.0.0.1:8080",
+  "http://localhost:8080",
   "https://collabhub-in.vercel.app", // Your production URL
 ];
 
@@ -50,6 +53,7 @@ app.get("/health", (req, res) => res.json({ status: "OK", uptime: process.uptime
 
 // --- API Routes ---
 app.use("/api/fileshare", fileRoutes);
+app.use("/api/codeshare", codeshareRoutes);
 app.use("/api/chat", chatRouter); // Use the imported chatRouter
 
 // --- Socket.io Setup ---

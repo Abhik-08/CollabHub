@@ -8,7 +8,7 @@ let codeId = null;
 
 // ✅ Detect backend URL based on environment
 const socketServerURL =
-  window.location.hostname === "localhost"
+  window.location.hostname === "localhost" || window.location.hostname === "127.0.0.1"
     ? "http://localhost:5000"
     : "https://collabhub-13ad.onrender.com/"; // change to your actual Render backend URL
 

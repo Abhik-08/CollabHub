@@ -16,7 +16,7 @@ async function getGeminiClient() {
   // Dynamic import for the new SDK
   const { GoogleGenAI } = await import("@google/genai");
   
-  const apiKey = process.env.COLLABHUB_GEMINI_API_KEY;
+  const apiKey = process.env.GEMINI_API_KEY || process.env.COLLABHUB_GEMINI_API_KEY;
   
   // Fail fast if key is missing when we actually try to use it
   if (!apiKey) {
@@ -36,7 +36,7 @@ function setSocket(io) {
 
 // --- 2. MAIN ROUTE HANDLER ---
 router.post("/", async (req, res) => {
-  const { message, room, userName } = req.body;
+  const { message, room } = req.body;
 
   try {
     // A. Initialize Client
@@ -93,7 +93,7 @@ router.post("/", async (req, res) => {
     
     // -- Scenario B: Missing API Key (Custom Error from step A) --
     else if (error.message === "MISSING_API_KEY") {
-        console.error("🚨 CONFIG ERROR: COLLABHUB_GEMINI_API_KEY is missing in .env");
+        console.error("🚨 CONFIG ERROR: GEMINI_API_KEY / COLLABHUB_GEMINI_API_KEY is missing in .env");
         userFriendlyError = "⚙️ System Error: AI service is not configured correctly.";
     }
 

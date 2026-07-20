@@ -3,8 +3,9 @@
 // In-memory store for code snippets
 let codeSnippets = {};
 let flowchartStates = {};
+let presentationStates = {};
 
-module.exports = (io) => {
+module.exports = function groupChatHandler(io) {
   io.on("connection", (socket) => {
     console.log("💬 Client connected:", socket.id);
 
@@ -163,6 +164,35 @@ module.exports = (io) => {
 
         // Broadcast to everyone *else*
         socket.to(roomId).emit("canvasExpanded", { newWidth, newHeight });
+      }
+    });
+
+    // ============================
+    // ===== PRESENTATION LOGIC ===
+    // ============================
+    socket.on("joinPresentation", (roomId) => {
+      socket.join(roomId);
+      console.log(`✨ User joined presentation: ${roomId}`);
+      if (!presentationStates[roomId]) {
+        presentationStates[roomId] = {
+          slides: [
+            { 
+              title: "Welcome to CollabHub Slides", 
+              content: "• This is your first slide!\n• Click 'Add Slide' on the sidebar to create more.\n• Collaborate on notes in the panel below.\n• Every update is synced in real-time!" 
+            }
+          ],
+          currentSlideIndex: 0,
+          notes: "Type collaborative presentation notes here..."
+        };
+      }
+      socket.emit("presentationUpdate", presentationStates[roomId]);
+    });
+
+    socket.on("updatePresentationState", (data) => {
+      const { roomId, state } = data;
+      if (presentationStates[roomId]) {
+        Object.assign(presentationStates[roomId], state);
+        socket.to(roomId).emit("presentationUpdate", presentationStates[roomId]);
       }
     });
 

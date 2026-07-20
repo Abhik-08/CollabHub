@@ -6,7 +6,7 @@
   <title>CollabHub | Group Chat</title>
   <link rel="stylesheet" href="../assets/css/chatbot.css" />
   <link rel="icon" type="image/png" href="../assets/images/favicon.png">
-  <script src="https://cdn.socket.io/4.6.1/socket.io.min.js"></script>
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/socket.io/4.7.5/socket.io.min.js" integrity="sha384-2huaZvOR9iDzHqslqwpR87isEmrfxqyWOF7hr7BY6KG0+hVKLoEXMPUJw3ynWuhO" crossorigin="anonymous"></script>
   
   <script src="https://cdn.jsdelivr.net/npm/marked/marked.min.js"></script>
 </head>
@@ -15,7 +15,7 @@
     <header id="chatHeader">
       <h1>💬 CollabHub Group Chat</h1>
       <div id="roomJoin">
-        <input id="roomInput" type="text" placeholder="Enter room code..." />
+        <input id="roomInput" type="text" placeholder="Enter room code..." aria-label="Room Code" />
         <button id="joinBtn">Join Room</button>
       </div>
     </header>
@@ -23,7 +23,7 @@
     <main id="chatBox"></main>
 
     <footer id="chatControls">
-      <input id="userInput" type="text" placeholder="Type your message..." />
+      <input id="userInput" type="text" placeholder="Type your message..." aria-label="Message" />
       <button id="sendBtn">Send</button>
     </footer>
   </div>

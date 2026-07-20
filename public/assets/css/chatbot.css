@@ -165,7 +165,7 @@ body::after {
 /* 1. YOU (User) -> RIGHT Side */
 .user-msg {
   align-self: flex-end; /* Pushes to right */
-  background: rgba(0, 243, 255, 0.1);
+  background: rgba(0, 30, 40, 0.85);
   border: 1px solid var(--neon-cyan);
   border-right: 4px solid var(--neon-cyan); /* Accent on right */
   color: #fff;
@@ -204,9 +204,9 @@ body::after {
 
 .error-msg {
   align-self: center;
-  color: #ff4444;
+  color: #ff8888;
   border: 1px solid #ff4444;
-  background: rgba(255, 0, 0, 0.1);
+  background: rgba(50, 0, 0, 0.85);
 }
 
 /* =========================================
